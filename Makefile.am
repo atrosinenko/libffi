@@ -87,6 +87,7 @@ noinst_HEADERS = \
 	src/avr32/ffitarget.h						\
 	src/bfin/ffitarget.h						\
 	src/cris/ffitarget.h						\
+	src/emscripten/ffitarget.h					\
 	src/frv/ffitarget.h						\
 	src/ia64/ffitarget.h src/ia64/ia64_flags.h			\
 	src/m32r/ffitarget.h						\
@@ -118,6 +119,7 @@ EXTRA_libffi_la_SOURCES = \
 	src/avr32/ffi.c src/avr32/sysv.S				\
 	src/bfin/ffi.c src/bfin/sysv.S					\
 	src/cris/ffi.c src/cris/sysv.S					\
+	src/emscripten/ffi.c						\
 	src/frv/ffi.c src/frv/eabi.S					\
 	src/ia64/ffi.c src/ia64/unix.S					\
 	src/m32r/ffi.c src/m32r/sysv.S					\

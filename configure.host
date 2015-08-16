@@ -43,6 +43,11 @@ case "${host}" in
 	SOURCES="ffi.c sysv.S"
 	;;
 
+  emscripten-*-*)
+	TARGET=EMSCRIPTEN; TARGETDIR=emscripten
+	SOURCES="ffi.c"
+	;;
+
   frv-*-*)
 	TARGET=FRV; TARGETDIR=frv
 	SOURCES="ffi.c eabi.S"
