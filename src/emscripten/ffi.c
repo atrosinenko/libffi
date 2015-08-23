@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------------
    ffi.c - Copyright (c) 2015 Anatoly Trosinenko 
 
-   x86 Foreign Function Interface
+   Emscripten Foreign Function Interface
 
    Permission is hereby granted, free of charge, to any person obtaining
    a copy of this software and associated documentation files (the
@@ -27,36 +27,99 @@
 #include <ffi.h>
 #include <ffi_common.h>
 #include <stdlib.h>
+#include <emscripten.h>
 
 /* Perform machine dependent cif processing.  */
 ffi_status FFI_HIDDEN
 ffi_prep_cif_machdep(ffi_cif *cif)
 {
-  return FFI_OK;
+	if(cif->rtype->size != 1 &&
+		cif->rtype->size != 2 &&
+		cif->rtype->size != 4 &&
+		cif->rtype->type != FFI_TYPE_DOUBLE &&
+		cif->rtype->type != FFI_TYPE_LONGDOUBLE)
+	{
+		return FFI_BAD_TYPEDEF;
+	}
+	return FFI_OK;
 }
 
-static ffi_arg
-extend_basic_type(void *arg, int type)
+static const char *type_character(const ffi_type *type)
 {
+	switch(type->type)
+	{
+	case FFI_TYPE_FLOAT:
+	case FFI_TYPE_DOUBLE:
+	case FFI_TYPE_LONGDOUBLE:
+		return "d";
+	default:
+		return "i";
+	}
 }
+
+static int type_logsize(const ffi_type *type)
+{
+	switch(type->size)
+	{
+	case 1: return 0;
+	case 2: return 1;
+	case 4: return 2;
+	case 8: return 3;
+	}
+}
+
+#define PUT_JS(str) ptr = stpcpy(ptr, (str))
+#define PRINTF_JS(...) ptr += sprintf(ptr, __VA_ARGS__)
 
 void
 ffi_call (ffi_cif *cif, void (*fn)(void), void *rvalue, void **avalue)
 {
+	char *buf = malloc(25 * cif->nargs + 50);
+	buf[0] = 0;
+	char *ptr = buf;
+	int i;
+	switch(cif->rtype->type)
+	{
+	case FFI_TYPE_FLOAT:
+		PRINTF_JS("HEAPF32[%d>>2] = ", rvalue);
+		break;
+	case FFI_TYPE_DOUBLE:
+	case FFI_TYPE_LONGDOUBLE:
+		PRINTF_JS("HEAPF64[%d>>3] = ", rvalue);
+		break;
+	default:
+		PRINTF_JS("HEAP32[%d>>2] = ", rvalue);
+		break;
+	}
+	PUT_JS("dynCall_");
+	PUT_JS(type_character(cif->rtype));
+	for(i = 0; i < cif->nargs; ++i)
+	{
+		PUT_JS(type_character(cif->arg_types[i]));
+	}
+	PRINTF_JS("(%d,", fn);
+	for(i = 0; i < cif->nargs; ++i)
+	{
+		if(i > 0)
+		{
+			PUT_JS(",");
+		}
+		switch(cif->arg_types[i]->type)
+		{
+		case FFI_TYPE_FLOAT:
+			PRINTF_JS("HEAPF32[%d>>2]", avalue[i]);
+			break;
+		case FFI_TYPE_DOUBLE:
+		case FFI_TYPE_LONGDOUBLE:
+			PRINTF_JS("HEAPF64[%d>>3]", avalue[i]);
+			break;
+		default:
+			PRINTF_JS("HEAP%d[%d>>%d]", cif->arg_types[i]->size * 8, avalue[i], type_logsize(cif->arg_types[i]));
+			break;
+		}
+	}
+	PUT_JS(")");
+	emscripten_run_script(buf);
+	free(buf);
 }
 
-void
-ffi_call_go (ffi_cif *cif, void (*fn)(void), void *rvalue,
-	     void **avalue, void *closure)
-{
-}
-
-/* ------- Native raw API support -------------------------------- */
-
-#if !FFI_NO_RAW_API
-
-void
-ffi_raw_call(ffi_cif *cif, void (*fn)(void), void *rvalue, ffi_raw *avalue)
-{
-}
-#endif /* !FFI_NO_RAW_API */

@@ -32,21 +32,10 @@
 #error "Please do not include ffitarget.h directly into your source.  Use ffi.h instead."
 #endif
 
-/* ---- System specific configurations ----------------------------------- */
-
-//#define USE_BUILTIN_FFS 0 
-
 /* ---- Generic type definitions ----------------------------------------- */
 
-#if defined __x86_64__ && defined __ILP32__
-#define FFI_SIZEOF_ARG 8
-#define FFI_SIZEOF_JAVA_RAW  4
-typedef unsigned long long     ffi_arg;
-typedef long long              ffi_sarg;
-#else
 typedef unsigned long          ffi_arg;
 typedef signed long            ffi_sarg;
-#endif
 
 typedef enum ffi_abi {
   FFI_FIRST_ABI = 0,
@@ -55,6 +44,8 @@ typedef enum ffi_abi {
   FFI_DEFAULT_ABI = FFI_EMSCRIPTEN
 } ffi_abi;
 
+#define FFI_CLOSURES 0
+#define FFI_GO_CLOSURES 0
 #define FFI_NATIVE_RAW_API 0
 #define FFI_NO_RAW_API 1
 

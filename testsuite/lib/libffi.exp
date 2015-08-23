@@ -54,7 +54,7 @@ proc libffi-dg-test-1 { target_compile prog do_what extra_tool_flags } {
 	}
 	"link" {
 	    set compile_type "executable"
-	    set output_file "[file rootname [file tail $prog]].exe"
+	    set output_file "[file rootname [file tail $prog]].js"
 	    # The following line is needed for targets like the i960 where
 	    # the default output file is b.out.  Sigh.
 	}
@@ -63,7 +63,7 @@ proc libffi-dg-test-1 { target_compile prog do_what extra_tool_flags } {
 	    # FIXME: "./" is to cope with "." not being in $PATH.
 	    # Should this be handled elsewhere?
 	    # YES.
-	    set output_file "./[file rootname [file tail $prog]].exe"
+	    set output_file "./[file rootname [file tail $prog]].js"
 	    # This is the only place where we care if an executable was
 	    # created or not.  If it was, dg.exp will try to run it.
 	    remote_file build delete $output_file;
@@ -188,6 +188,7 @@ proc libffi_target_compile { source dest type options } {
     # search for ffi_mips.h in srcdir, too
     lappend options "additional_flags=-I${libffi_include} -I${srcdir}/../include  -I${libffi_include}/.."
     lappend options "additional_flags=${libffi_link_flags}"
+    lappend options "additional_flags=-Wno-warn-absolute-paths"
 
     # Darwin needs a stack execution allowed flag.
 
