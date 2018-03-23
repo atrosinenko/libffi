@@ -50,7 +50,9 @@ static const char *type_character(const ffi_type *type)
 	{
 	case FFI_TYPE_FLOAT:
 	case FFI_TYPE_DOUBLE:
+#if FFI_TYPE_LONGDOUBLE != FFI_TYPE_DOUBLE
 	case FFI_TYPE_LONGDOUBLE:
+#endif
 		return "d";
 	default:
 		return "i";
@@ -84,7 +86,9 @@ ffi_call (ffi_cif *cif, void (*fn)(void), void *rvalue, void **avalue)
 		PRINTF_JS("HEAPF32[%d>>2] = ", rvalue);
 		break;
 	case FFI_TYPE_DOUBLE:
+#if FFI_TYPE_LONGDOUBLE != FFI_TYPE_DOUBLE
 	case FFI_TYPE_LONGDOUBLE:
+#endif
 		PRINTF_JS("HEAPF64[%d>>3] = ", rvalue);
 		break;
 	default:
@@ -110,7 +114,9 @@ ffi_call (ffi_cif *cif, void (*fn)(void), void *rvalue, void **avalue)
 			PRINTF_JS("HEAPF32[%d>>2]", avalue[i]);
 			break;
 		case FFI_TYPE_DOUBLE:
+#if FFI_TYPE_LONGDOUBLE != FFI_TYPE_DOUBLE
 		case FFI_TYPE_LONGDOUBLE:
+#endif
 			PRINTF_JS("HEAPF64[%d>>3]", avalue[i]);
 			break;
 		default:
