@@ -28,6 +28,7 @@
 #include <ffi_common.h>
 #include <stdlib.h>
 #include <emscripten.h>
+#include <stdio.h>
 
 /* Perform machine dependent cif processing.  */
 ffi_status FFI_HIDDEN
